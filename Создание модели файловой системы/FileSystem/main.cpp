@@ -1,8 +1,9 @@
 #include "FileSystem.h"
 
 int main() {
-    std::unique_ptr<Folder> root;
-    root = root->createTestFileSystem();
-    root->displayInfo();
+    FileSystem fs;
+    // fs.getCurrentFolder()->displayInfo();
+    fs.navigateToPath("/root/documents/projects");
+    std::cout << fs.getCurrentFolder()->getPath() << '\n';
     return 0;
 }

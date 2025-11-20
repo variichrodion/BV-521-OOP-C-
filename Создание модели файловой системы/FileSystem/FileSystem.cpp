@@ -131,11 +131,61 @@ void Folder::calculateElements(int& fileCount, int& folderCount) {
 std::unique_ptr<Folder> Folder::createTestFileSystem(){
     auto root = std::make_unique<Folder>("root");
 
-    // ???? ??? ???? ???
+
+    return root;
+}
+
+/* == Folder END == */
+
+FileSystem::FileSystem() {
+    root = std::make_unique<Folder>("root");
+    current_folder = root.get();
+    initStruct();
+}
+
+Folder* FileSystem::getCurrentFolder() { return current_folder; }
+
+Folder* FileSystem::navigateToPath(const std::string& path){
+    if (path.empty()) return current_folder;
+    if (path[0] == '/') current_folder = navigateFromRoot(path);
+    //else return navigateFromCurrent(path);
+}
+
+Folder* FileSystem::navigateFromRoot(const std::string& path) {
+    Folder* end_folder = root.get();                    // конечная директория
+    std::vector<std::string> parts = splitPath(path);   // разделяем путь на подстроки
+    parts.erase(parts.begin());
+    for (const std::string& part : parts) {
+        // Что вернул поиск подпапки?
+        Folder* temp = static_cast<Folder*>(end_folder->searchLocal(part));
+        if (!temp) {
+            std::cout << "Ошибка: путь не существует! - " << part << '\n';
+            return current_folder;
+        }
+        end_folder = temp;
+    }
+    return end_folder;
+}
+
+std::vector<std::string> FileSystem::splitPath(const std::string& path) {
+    std::vector<std::string> parts; // parts - части
+    if (path == "/") return parts;
+    std::stringstream ss(path);
+    std::string part;               // часть строки
+    while (std::getline(ss, part, '/')) {
+        if (!part.empty()) parts.push_back(part);
+    }
+    return parts;
+}
+
+
+
+void FileSystem::initStruct() {
+    // папки первого уровня
     Folder* documents = root->createFolder("documents");
     Folder* images = root->createFolder("images");
 
-    // ????? ??? documents
+    // содержимое documents
     documents->createFile("resume.pdf", 2048);
     documents->createFile("contract.docx", 4096);
 
@@ -148,7 +198,7 @@ std::unique_ptr<Folder> Folder::createTestFileSystem(){
     work->createFile("report.xlsx", 3072);
     work->createFile("presentation.pptx", 6144);
 
-    // ????? ??? images
+    // сожжержимое images
     images->createFile("photo.jpg", 10240);
     images->createFile("screenshot.png", 8192);
 
@@ -159,8 +209,4 @@ std::unique_ptr<Folder> Folder::createTestFileSystem(){
     Folder* screenshots = images->createFolder("screenshots");
     screenshots->createFile("game.png", 7168);
     screenshots->createFile("app.png", 6144);
-
-    return root;
 }
-
-/* == Folder END == */

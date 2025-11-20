@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 #include <cstring>
+#include <sstream> // для stringstream
 
 /* == FileSystemElement START == */
 
@@ -78,3 +79,18 @@ public:
 };
 
 /* == Folder END == */
+
+class FileSystem {
+private:
+    std::unique_ptr<Folder> root;   // корневая директория
+    Folder* current_folder;         // текущая директория
+public:
+    FileSystem();
+    Folder* getCurrentFolder();
+    Folder* navigateToPath(const std::string&);         // определяем метод перехода (полный или относительный путь)
+    Folder* navigateFromRoot(const std::string&);       // для полного пути          (начинается с '/')
+    Folder* navigateFromCurrent(const std::string&);        // для относительного пути   (не имеет '/')
+    std::vector<std::string> splitPath(const std::string&); // разделение строки
+private:
+    void initStruct();
+};
